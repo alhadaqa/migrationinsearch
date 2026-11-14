@@ -1,0 +1,68 @@
+// using d3 for convenience
+var main_02 = d3.select("#section-02");
+var scrolly_02 = main_02.select("#scrolly-02");
+var figure_02 = scrolly_02.select("figure");
+var article_02 = scrolly_02.select("article");
+var step_02 = article_02.selectAll(".step");
+
+// initialize the scrollama
+var scroller_02 = scrollama();
+
+// generic window resize listener event
+function handleResize_02() {
+    // 1. update height of step elements
+    var stepH = Math.floor(window.innerHeight * 0.75);
+    step_02.style("height", stepH + "px");
+
+    var figureHeight = window.innerHeight / 2;
+    var figureMarginTop = (window.innerHeight - figureHeight) / 2;
+
+    figure_02.style("height", figureHeight + "px").style("top", figureMarginTop + "px");
+
+    // 3. tell scrollama to update new element dimensions
+    scroller_02.resize();
+}
+
+// scrollama event handlers
+function handleStepEnter_02(response) {
+    console.log(response);
+    // response = { element, direction, index }
+
+    // add color to current step only
+    step_02.classed("is-active", function (d, i) {
+        return i === response.index;
+    });
+
+    // update graphic based on step
+    figure_02.select("p").text(response.index + 1);
+}
+
+function setupStickyfill_02() {
+    d3.selectAll(".sticky").each(function () {
+        Stickyfill.add(this);
+    });
+}
+
+function init_02() {
+    setupStickyfill_02();
+
+    // 1. force a resize on load to ensure proper dimensions are sent to scrollama
+    handleResize_02();
+
+    // 2. setup the scroller_02 passing options
+    // this will also initialize trigger observations
+    // 3. bind scrollama event handlers (this can be chained like below)
+    scroller_02
+        .setup({
+            step: "#scrolly-02 article .step",
+            offset: 0.33,
+            debug: false,
+        })
+        .onStepEnter(handleStepEnter_02);
+
+    // setup resize event
+    window.addEventListener("resize", handleResize_02);
+}
+
+// kick things off
+init_02();
